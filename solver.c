@@ -9,12 +9,8 @@
 int hori_wall[MAZE_SIZE][MAZE_SIZE]={0};
 int vert_wall[MAZE_SIZE][MAZE_SIZE]={0};
 int man_dist[MAZE_SIZE][MAZE_SIZE];
-int n=0;
-Action return_arr[MAZE_SIZE*MAZE_SIZE];
-int return_size=0;
-int s=0;
+
 int r=0;
-int s2=0;
 
 struct position{
   int x;
@@ -70,91 +66,91 @@ struct element dequeue() {
 }
 
 void Fill_Vert(){
-  for (int i = 0; i < MAZE_SIZE; i++){
-    for (int j = 0; j < MAZE_SIZE; j++){
-      if (i==MAZE_SIZE-1){
-        vert_wall[i][j]=1;
-      }
-      
-    }
+  for (int j = 0; j < MAZE_SIZE; j++){
+    vert_wall[MAZE_SIZE-1][j]=1;
   }
 }
 
 void Fill_Hori(){
-  for (int i = 0; i < MAZE_SIZE; i++){
-    for (int j = 0; j < MAZE_SIZE; j++){
-      if (j==MAZE_SIZE-1){
-        hori_wall[i][j]=1;
-      }
-      
-    }
+  for (int j = 0; j < MAZE_SIZE; j++){
+    hori_wall[j][MAZE_SIZE-1]=1;
   }
 }
 
 void FillMan(int arr[MAZE_SIZE][MAZE_SIZE]){
-    for(int i=0;i<MAZE_SIZE;i++){
-        for(int j=0;j<MAZE_SIZE;j++){
-          if((i==8&&j==8)||(i==7&&j==8)||(i==8&&j==7)||(i==7&&j==7)){
-            arr[i][j]=0;
-          }
-          else{
-          arr[i][j]=MAZE_SIZE*MAZE_SIZE;
-          }
+  if(r == 0){
+    enqueue(MAZE_SIZE/2 - 1, MAZE_SIZE/2 - 1, 0);
+    enqueue(MAZE_SIZE/2 - 1, MAZE_SIZE/2, 0);
+    enqueue(MAZE_SIZE/2, MAZE_SIZE/2 - 1, 0);
+    enqueue(MAZE_SIZE/2, MAZE_SIZE/2, 0);
+  }
+  else{
+    enqueue(0,0,0);
+  }
+  for (int i = 0; i < MAZE_SIZE; i++){
+    for (int j = 0; j < MAZE_SIZE; j++){
+      if(r==0){
+        if ((i == MAZE_SIZE/2 && j == MAZE_SIZE/2) || (i == MAZE_SIZE/2 - 1 && j == MAZE_SIZE/2) || (i == MAZE_SIZE/2 && j == MAZE_SIZE/2 - 1) || (i == MAZE_SIZE/2 - 1 && j == MAZE_SIZE/2 - 1)){
+          arr[i][j] = 0;
+        }
+        else{
+          arr[i][j] = MAZE_SIZE * MAZE_SIZE;
         }
       }
+      else{
+        if (i == 0 && j == 0){
+          arr[i][j] = 0;
+        }
+        else{
+          arr[i][j] = MAZE_SIZE * MAZE_SIZE;
+        }
+      }
+    }
   }
+}
 
 void DispMan(){
-    for(int i=0;i<MAZE_SIZE;i++){
-        for(int j=0;j<MAZE_SIZE;j++){
-            char buffer[4];
-            itoa(man_dist[i][j],buffer,10);
-          API_setText(i,j,buffer);
-        }
-      }
+  for (int i = 0; i < MAZE_SIZE; i++){
+    for (int j = 0; j < MAZE_SIZE; j++){
+      char buffer[4];
+      itoa(man_dist[i][j], buffer, 10);
+      API_setText(i, j, buffer);
+    }
+  }
 }
 
 void CalcMan(){
+
   FillMan(man_dist);
-  enqueue(7,7,0);
-  enqueue(7,8,0);
-  enqueue(8,7,0);
-  enqueue(8,8,0);
-
   while (!isEmpty()){
-    struct element temp=dequeue();
-      if(vert_wall[temp.x][temp.y]==0){//check walls
-        if (man_dist[(temp.x)+1][temp.y]==256)
-        {
-          man_dist[(temp.x)+1][temp.y]=(temp.value)+1;
-          enqueue((temp.x)+1,temp.y,(temp.value)+1);
-        }
+    struct element temp = dequeue();
+    if (vert_wall[temp.x][temp.y] == 0){ // check walls
+      if (man_dist[(temp.x) + 1][temp.y] == MAZE_SIZE * MAZE_SIZE){
+        man_dist[(temp.x) + 1][temp.y] = (temp.value) + 1;
+        enqueue((temp.x) + 1, temp.y, (temp.value) + 1);
       }
+    }
 
-      if(vert_wall[(temp.x)-1][temp.y]==0){//check walls
-        if (man_dist[(temp.x)-1][temp.y]==256)
-        {
-          man_dist[(temp.x)-1][temp.y]=(temp.value)+1;
-          enqueue((temp.x-1),temp.y,(temp.value)+1);
-        }
+    if (vert_wall[(temp.x) - 1][temp.y] == 0){ // check walls
+      if (man_dist[(temp.x) - 1][temp.y] == MAZE_SIZE * MAZE_SIZE){
+        man_dist[(temp.x) - 1][temp.y] = (temp.value) + 1;
+        enqueue((temp.x - 1), temp.y, (temp.value) + 1);
       }
+    }
 
-      if(hori_wall[temp.x][temp.y]==0){//check walls
-        if (man_dist[temp.x][(temp.y)+1]==256)
-        {
-          man_dist[temp.x][(temp.y)+1]=(temp.value)+1;
-          enqueue(temp.x,(temp.y)+1,(temp.value)+1);
-        }
+    if (hori_wall[temp.x][temp.y] == 0){ // check walls
+      if (man_dist[temp.x][(temp.y) + 1] == MAZE_SIZE * MAZE_SIZE){
+        man_dist[temp.x][(temp.y) + 1] = (temp.value) + 1;
+        enqueue(temp.x, (temp.y) + 1, (temp.value) + 1);
       }
+    }
 
-      if(hori_wall[temp.x][(temp.y)-1]==0){//check walls
-        if (man_dist[(temp.x)][(temp.y)-1]==256)
-        {
-          man_dist[(temp.x)][(temp.y)-1]=(temp.value)+1;
-          enqueue(temp.x,(temp.y)-1,(temp.value)+1);
-        }
+    if (hori_wall[temp.x][(temp.y) - 1] == 0){ // check walls
+      if (man_dist[(temp.x)][(temp.y) - 1] == MAZE_SIZE * MAZE_SIZE){
+        man_dist[(temp.x)][(temp.y) - 1] = (temp.value) + 1;
+        enqueue(temp.x, (temp.y) - 1, (temp.value) + 1);
       }
-    
+    }
   }
 }
 
@@ -184,7 +180,6 @@ void Setwalls(){
 }
 
 Heading ret_dir(){
-  debug_log("Heading");
   if(current.y==MAZE_SIZE-1||hori_wall[current.x][current.y]==1){
     man_n=MAZE_SIZE*MAZE_SIZE;
   }
@@ -230,212 +225,124 @@ Heading ret_dir(){
     }
 }
 
-Action back_to_start(){
-  char buffer1[3];
-  char buffer2[3];
-  itoa(current.x,buffer1,10);
-  itoa(current.y,buffer2,10);
-  debug_log(buffer1);
-  debug_log(buffer2);
-  if(current.y==0&&current.x==0){
-    debug_log("Reached");
-    r=0;
-    current.orient='w';
-    return RIGHT;
-  }
+/*void changeTarget(){
 
-  else if(man_dist[current.x][current.y]==0){
-    if(s<2){
-      if(s==0){
-        return_size--;
-      }
-      s++;
-      current.orient='n';
-      return RIGHT;
-    }
-    else{
-      current.y=current.y+1;
-      return FORWARD;
-    }
-  }
-  else if(return_arr[return_size-1]==FORWARD){
-    return_size--;
-    switch (current.orient){
-      case 'n':
-        current.y++;
-        break;
-
-      case 'e':
-        current.x++;
-        break;
-      
-      case 's':
-        current.y--;
-        break;
-      
-      case 'w':
-        current.x--;
-        break;
-    }
-    debug_log("FORWARD");
-    return FORWARD;
-  }
-  else if(return_arr[return_size-1]==RIGHT){
-    return_size--;
-    switch (current.orient){
-      case 'n':
-        current.orient='w';
-        break;
-
-      case 'e':
-        current.orient='n';
-        break;
-      
-      case 's':
-        current.orient='e';
-        break;
-      
-      case 'w':
-        current.orient='s';
-        break;
-    }
-    debug_log("LEFT");
-    return LEFT;
-  }
-  else if(return_arr[return_size-1]==LEFT){
-    return_size--;
-    switch (current.orient){
-      case 'n':
-        current.orient='e';
-        break;
-
-      case 'e':
-        current.orient='s';
-        break;
-      
-      case 's':
-        current.orient='w';
-        break;
-      
-      case 'w':
-        current.orient='n';
-        break;
-    }
-    debug_log("RIGHT");
-    return RIGHT;
-  }
-}
+}*/
 
 Action retAck(Heading dir){
-  if(man_dist[current.x][current.y]==0){
-    r=1;
-    return back_to_start();
+  if((current.x == MAZE_SIZE/2 - 1 || current.x == MAZE_SIZE/2) && (current.y == MAZE_SIZE/2 - 1 || current.y == MAZE_SIZE/2)){
+    if(r == 0){
+      debug_log(&current.orient);
+      r=1;
+      if(current.orient == 's'){
+        current.orient = 'w';
+      }
+      else if(current.orient == 'n'){
+        current.orient = 'e';
+      }
+      else if(current.orient == 'w'){
+        current.orient = 'n';
+      }
+      else{
+        current.orient = 's';
+      }
+      debug_log(&current.orient);
+      return RIGHT;
+    }
+  }
+
+  if(current.x == 0 && current.y == 0){
+    if(r == 1){
+      r=0;
+      if(current.orient == 's'){
+        current.orient = 'w';
+      }
+      else if(current.orient == 'n'){
+        current.orient = 'e';
+      }
+      else if(current.orient == 'w'){
+        current.orient = 'n';
+      }
+      else{
+        current.orient = 's';
+      }
+      debug_log(&current.orient);
+      return RIGHT;
+    }
   }
   if(dir==NORTH){
     if(current.orient=='n'){
       current.y=current.y+1;
-      return_arr[return_size]=FORWARD;
-      return_size++;
       return FORWARD;
     }
     else if(current.orient=='e'){
       current.orient='n';
-      return_arr[return_size]=LEFT;
-      return_size++;
       return LEFT;
     }
     else if(current.orient=='w'){
       current.orient='n';
-      return_arr[return_size]=RIGHT;
-      return_size++;
       return RIGHT;
     }
     else{
       current.orient='w';
-      return_arr[return_size]=RIGHT;
-      return_size++;
       return RIGHT;
     }
   }
   else if(dir==WEST){
     if(current.orient=='n'){
       current.orient='w';
-      return_arr[return_size]=LEFT;
-      return_size++;
       return LEFT;
     }
     else if(current.orient=='e'){
       current.orient='n';
-      return_arr[return_size]=LEFT;
-      return_size++;
       return LEFT;
     }
     else if(current.orient=='w'){
       current.x=current.x-1;
-      return_arr[return_size]=FORWARD;
-      return_size++;
       return FORWARD;
     }
     else{
       current.orient='w';
-      return_arr[return_size]=RIGHT;
-      return_size++;
       return RIGHT;
     }
   }
   else if(dir==EAST){
     if(current.orient=='n'){
       current.orient='e';
-      return_arr[return_size]=RIGHT;
-      return_size++;
       return RIGHT;
     }
     else if(current.orient=='e'){
       current.x=current.x+1;
-      return_arr[return_size]=FORWARD;
-      return_size++;
       return FORWARD;
     }
     else if(current.orient=='w'){
       current.orient='n';
-      return_arr[return_size]=RIGHT;
-      return_size++;
       return RIGHT;
     }
     else{
       current.orient='e';
-      return_arr[return_size]=LEFT;
-      return_size++;
       return LEFT;
     }
   }
   else{
     if(current.orient=='n'){
       current.orient='e';
-      return_arr[return_size]=RIGHT;
-      return_size++;
+
       return RIGHT;
     }
     else if(current.orient=='e'){
       current.orient='s';
-      return_arr[return_size]=RIGHT;
-      return_size++;
       return RIGHT;
     }
     else if(current.orient=='w'){
       current.orient='s';
-      return_arr[return_size]=LEFT;
-      return_size++;
       return LEFT;
     }
     else{
       current.y=current.y-1;
-      return_arr[return_size]=FORWARD;
-      return_size++;
       return FORWARD;
     }
   }
-  return IDLE;
 }
 
 void updateWalls(){
@@ -445,38 +352,26 @@ void updateWalls(){
       case 'n':
         if(current.y!=MAZE_SIZE-1){
           hori_wall[current.x][current.y]=1;
-          break;
         }
-        else{
-          break;
-        }
+        break;
 
       case 'e':
         if(current.x!=MAZE_SIZE-1){
           vert_wall[current.x][current.y]=1;
-          break;
         }
-        else{
-          break;
-        }
+        break;
 
       case 's':
         if(current.y!=0){
           hori_wall[current.x][current.y-1]=1;
-          break;
         }
-        else{
-          break;
-        }
+        break;
 
       case 'w':
         if(current.x!=0){
           vert_wall[current.x-1][current.y]=1;
-          break;
         }
-        else{
-          break;
-        }
+        break;
     }
   }
   if(API_wallLeft()){
@@ -485,38 +380,27 @@ void updateWalls(){
       case 'n':
         if(current.x!=0){
           vert_wall[current.x-1][current.y]=1;
-          break;
         }
-        else{
-          break;
-        }
+        break;
 
       case 'e':
         if(current.y!=MAZE_SIZE-1){
           hori_wall[current.x][current.y]=1;
-          break;
         }
-        else{
-          break;
-        }
+        break;
 
       case 's':
         if(current.x!=MAZE_SIZE-1){
           vert_wall[current.x][current.y]=1;
-          break;
         }
-        else{
-          break;
-        }
+        break;
+
 
       case 'w':
         if(current.y!=0){
           hori_wall[current.x][current.y-1]=1;
-          break;
         }
-        else{
-          break;
-        }
+        break;
     }
   }
   if(API_wallRight()){
@@ -525,38 +409,26 @@ void updateWalls(){
       case 'n':
         if(current.x!=MAZE_SIZE-1){
           vert_wall[current.x][current.y]=1;
-          break;
         }
-        else{
-          break;
-        }
+        break;
 
       case 'e':
         if(current.y!=0){
           hori_wall[current.x][current.y-1]=1;
-          break;
         }
-        else{
-          break;
-        }
+        break;
 
       case 's':
         if(current.x!=0){
           vert_wall[current.x-1][current.y]=1;
-          break;
         }
-        else{
-          break;
-        }
+        break;
 
       case 'w':
         if(current.y!=MAZE_SIZE-1){
           hori_wall[current.x][current.y]=1;
-          break;
         }
-        else{
-          break;
-        }
+        break;
     }
   }
 }
@@ -567,20 +439,12 @@ Action solver() {
 
 // Put your implementation of floodfill here!
 Action floodFill() {
-  if(n==0){
-    n=1;
     Fill_Hori();
     Fill_Vert();
-  }
-  if(!r){
     updateWalls();
     Setwalls();
     CalcMan();
     DispMan();
     Heading dir=ret_dir();
     return retAck(dir);
-  }
-  else{
-    return back_to_start();
-  }
 }
